@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Compressor Under 100KB | Free Online Tool</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0f0f0f;
+  color: #fff;
+  padding: 20px;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  background: #1a1a1a;
+  padding: 30px;
+  border-radius: 10px;
+}
+
+h1 {
+  text-align: center;
+  color: #ff0033;
+}
+
+p {
+  text-align: center;
+  color: #ccc;
+}
+
+/* ===== Adsterra ===== */
+.ad-container {
+  max-width: 728px;
+  margin: 25px auto;
+  text-align: center;
+}
+
+.ad-label {
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 5px;
+}
+
+.ad-banner {
+  min-height: 90px;
+  background: #111;
+  border: 1px solid #ff0033;
+  border-radius: 6px;
+}
+/* =================== */
+
+.upload {
+  border: 2px dashed #ff0033;
+  padding: 30px;
+  text-align: center;
+  margin: 20px 0;
+  cursor: pointer;
+}
+
+.upload:hover {
+  background: rgba(255,0,51,0.1);
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+select, button {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+}
+
+button {
+  background: #ff0033;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #cc0029;
+}
+
+.preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.box {
+  background: #111;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+img {
+  max-width: 100%;
+  border-radius: 5px;
+}
+
+.size {
+  margin-top: 10px;
+  color: #aaa;
+}
+
+.download {
+  display: none;
+  margin-top: 10px;
+  background: #00c853;
+  padding: 8px 15px;
+  color: #000;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+footer {
+  text-align: center;
+  margin-top: 30px;
+  color: #777;
+  font-size: 13px;
+}
+
+@media(max-width:768px){
+  .preview {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>Image Compressor</h1>
+  <p>Compress image to 50KB, 100KB or 200KB without losing quality</p>
+
+  <!-- ===== TOP AD ===== -->
+  <div class="ad-container">
+    <div class="ad-label">ADVERTISEMENT</div>
+    <div class="ad-banner">
+      <!-- PASTE ADSTERRA TOP BANNER CODE HERE -->
+    </div>
+  </div>
+
+  <div class="upload" onclick="fileInput.click()">
+    Click to upload image
+    <input type="file" id="fileInput" accept="image/*" hidden>
+  </div>
+
+  <div class="controls">
+    <select id="targetSize">
+      <option value="50">50 KB</option>
+      <option value="100">100 KB</option>
+      <option value="200">200 KB</option>
+    </select>
+    <button onclick="startCompress()">Compress Image</button>
+  </div>
+
+  <!-- ===== BOTTOM AD ===== -->
+  <div class="ad-container">
+    <div class="ad-label">ADVERTISEMENT</div>
+    <div class="ad-banner">
+      <!-- PASTE ADSTERRA BOTTOM BANNER CODE HERE -->
+    </div>
+  </div>
+
+  <div class="preview">
+    <div class="box">
+      <h3>Original</h3>
+      <img id="originalImg">
+      <div class="size" id="originalSize"></div>
+    </div>
+
+    <div class="box">
+      <h3>Compressed</h3>
+      <img id="compressedImg">
+      <div class="size" id="compressedSize"></div>
+      <a id="downloadBtn" class="download" download>Download</a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  This tool works fully in your browser. Your images are never uploaded.
+</footer>
+
+<script>
+const fileInput = document.getElementById("fileInput");
+const originalImg = document.getElementById("originalImg");
+const compressedImg = document.getElementById("compressedImg");
+const originalSize = document.getElementById("originalSize");
+const compressedSize = document.getElementById("compressedSize");
+const downloadBtn = document.getElementById("downloadBtn");
+const targetSize = document.getElementById("targetSize");
+
+let imageFile;
+
+fileInput.addEventListener("change", e => {
+  imageFile = e.target.files[0];
+  if (!imageFile) return;
+
+  originalImg.src = URL.createObjectURL(imageFile);
+  originalSize.innerText =
+    "Size: " + (imageFile.size / 1024).toFixed(2) + " KB";
+});
+
+function startCompress() {
+  if (!imageFile) {
+    alert("Please upload an image");
+    return;
+  }
+
+  const targetKB = parseInt(targetSize.value);
+  compressImage(imageFile, targetKB);
+}
+
+function compressImage(file, targetKB) {
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+
+    let quality = 0.9;
+
+    function tryCompress() {
+      canvas.toBlob(blob => {
+        const sizeKB = blob.size / 1024;
+
+        if (sizeKB <= targetKB || quality <= 0.1) {
+          const url = URL.createObjectURL(blob);
+          compressedImg.src = url;
+          compressedSize.innerText =
+            "Size: " + sizeKB.toFixed(2) + " KB";
+          downloadBtn.href = url;
+          downloadBtn.style.display = "inline-block";
+        } else {
+          quality -= 0.05;
+          tryCompress();
+        }
+      }, "image/jpeg", quality);
+    }
+
+    tryCompress();
+  };
+}
+</script>
+
+</body>
+</html>
